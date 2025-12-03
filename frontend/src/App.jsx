@@ -1,31 +1,56 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
 import Navbar from "./components/Navbar";
+
 import Home from "./pages/HomePage";
 import AddProductPage from "./pages/AddProductPage";
 import ProductPage from "./pages/ProductPage";
 import EditProductPage from "./pages/EditProductPage";
-import NotFoundPage from "./pages/NotFoundPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import NotFoundPage from "./pages/NotFoundPage";
 
-const App = () => {
+import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./context/AuthContext";
+
+function App() {
   return (
-    <BrowserRouter>
-      <Navbar />
-      <div className="content">
+    <AuthProvider>
+      <BrowserRouter>
+        <Navbar />
+
         <Routes>
           <Route path="/" element={<Home />} />
+
+          {/* PROTECTED ROUTES */}
+          <Route
+            path="/products/add-product"
+            element={
+              <ProtectedRoute>
+                <AddProductPage />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="/products/:id" element={<ProductPage />} />
-          <Route path="/products/add-product" element={<AddProductPage />} />
-          <Route path="/products/edit/:id" element={<EditProductPage />} />
-          <Route path="/signup" element={<Signup />} />
+
+          <Route
+            path="/products/edit/:id"
+            element={
+              <ProtectedRoute>
+                <EditProductPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* AUTH ROUTES */}
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </div>
-    </BrowserRouter>
+      </BrowserRouter>
+    </AuthProvider>
   );
-};
+}
 
 export default App;

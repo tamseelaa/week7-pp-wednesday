@@ -1,21 +1,39 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const ProductPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { user } = useContext(AuthContext);
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // ============================
+  // DELETE PRODUCT (Protected)
+  // ============================
   const deleteProduct = async () => {
+    if (!user) {
+      alert("You must be logged in to delete a product.");
+      return navigate("/login");
+    }
+
+    const confirmed = window.confirm("Are you sure you want to delete this product?");
+    if (!confirmed) return;
+
     try {
       const res = await fetch(`/api/products/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
       });
 
-      if (!res.ok) throw new Error("Failed to delete product");
+      if (!res.ok) {
+        throw new Error("Failed to delete product");
+      }
 
       navigate("/");
     } catch (err) {
@@ -23,6 +41,9 @@ const ProductPage = () => {
     }
   };
 
+  // ============================
+  // FETCH PRODUCT
+  // ============================
   useEffect(() => {
     if (!id) {
       setError("Invalid product ID");
@@ -33,7 +54,8 @@ const ProductPage = () => {
     const fetchProduct = async () => {
       try {
         const res = await fetch(`/api/products/${id}`);
-        if (!res.ok) throw new Error("Network response was not ok");
+
+        if (!res.ok) throw new Error("Failed to fetch product");
 
         const data = await res.json();
         setProduct(data);
@@ -68,13 +90,21 @@ const ProductPage = () => {
           <p>Email: {product.supplier?.contactEmail}</p>
           <p>Phone: {product.supplier?.contactPhone}</p>
 
-          {/* DELETE BUTTON */}
-          <button onClick={deleteProduct}>Delete</button>
+          {/* DELETE BUTTON (Protected) */}
+          {user && <button onClick={deleteProduct}>Delete</button>}
 
-          {/* FIXED EDIT BUTTON */}
-          <button onClick={() => navigate(`/products/edit/${product.id}`)}>
-            Edit
-          </button>
+          {/* EDIT BUTTON (Protected) */}
+          {user && (
+            <button onClick={() => navigate(`/products/edit/${product.id}`)}>
+              Edit
+            </button>
+          )}
+
+          {!user && (
+            <p style={{ color: "red" }}>
+              Login to edit or delete products.
+            </p>
+          )}
         </>
       )}
     </div>

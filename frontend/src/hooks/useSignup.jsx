@@ -1,29 +1,34 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 export default function useSignup(url) {
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(null);
+  const { setUser } = useContext(AuthContext);
 
-  const signup = async (object) => {
-    setIsLoading(true);
+  const signup = async (userData) => {
     setError(null);
-    const response = await fetch(url, {
+
+    const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(object),
+      body: JSON.stringify(userData),
     });
-    const user = await response.json();
 
-    if (!response.ok) {
-      console.log(user.error);
-      setError(user.error);
-      setIsLoading(false);
-      return error;
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error);
+      return null;
     }
 
-    localStorage.setItem("user", JSON.stringify(user));
-    setIsLoading(false);
+    // Save user + JWT
+    localStorage.setItem("user", JSON.stringify(data));
+
+    // Update global AuthContext
+    setUser(data);
+
+    return data;
   };
 
-  return { signup, isLoading, error };
+  return { signup, error };
 }
