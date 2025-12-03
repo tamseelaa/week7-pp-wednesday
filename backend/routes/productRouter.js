@@ -1,3 +1,4 @@
+// routes/productRouter.js
 const express = require("express");
 const {
   getAllProducts,
@@ -5,17 +6,17 @@ const {
   createProduct,
   updateProduct,
   deleteProduct,
-} = require("../controllers/productControllers");
+} = require("../controllers/productController");
 
 const auth = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// PUBLIC
+// PUBLIC ROUTES
 router.get("/", getAllProducts);
 router.get("/:productId", getProductById);
 
-// PROTECTED
+// PROTECTED ROUTES
 router.post("/", auth, createProduct);
 router.put("/:productId", auth, updateProduct);
 router.delete("/:productId", auth, deleteProduct);
