@@ -2,17 +2,21 @@ const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// Helper to create JWT
-const createToken = (_id) => {
-  return jwt.sign({ _id }, process.env.SECRET, { expiresIn: "3d" });
+// Generate JWT
+const createToken = (_id, role) => {
+  return jwt.sign({ _id, role }, process.env.SECRET, { expiresIn: "3d" });
 };
 
-// SIGNUP CONTROLLER
+// SIGNUP
 const signupUser = async (req, res) => {
   try {
-    const { email, password, name, phone_number, gender, date_of_birth, membership_status } = req.body;
+    const { name, email, password, role, address } = req.body;
 
-    // Check if exists
+    if (!name || !email || !password || !role || !address) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // Check if user exists
     const exists = await User.findOne({ email });
     if (exists) {
       return res.status(400).json({ error: "Email already in use" });
@@ -24,30 +28,26 @@ const signupUser = async (req, res) => {
 
     // Create user
     const user = await User.create({
-      email,
       name,
-      phone_number,
-      gender,
-      date_of_birth,
-      membership_status,
-      passwordHash: hash,
+      email,
+      password: hash,
+      role,
+      address
     });
 
-    // Generate token
-    const token = createToken(user._id);
+    const token = createToken(user._id, user.role);
 
-    // SUCCESS RESPONSE MUST RETURN
     return res.status(201).json({
       email: user.email,
-      token,
+      role: user.role,
+      token
     });
-
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
 };
 
-// LOGIN CONTROLLER
+// LOGIN
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -55,12 +55,20 @@ const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: "Incorrect email" });
 
-    const match = await bcrypt.compare(password, user.passwordHash);
+    const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(400).json({ error: "Incorrect password" });
 
-    const token = createToken(user._id);
+    // update last login
+    user.lastLogin = new Date();
+    await user.save();
 
-    return res.status(200).json({ email, token });
+    const token = createToken(user._id, user.role);
+
+    return res.status(200).json({
+      email: user.email,
+      role: user.role,
+      token
+    });
 
   } catch (error) {
     return res.status(400).json({ error: error.message });
