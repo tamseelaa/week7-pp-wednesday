@@ -5,9 +5,9 @@ const ProductListings = ({ products }) => {
 
   return (
     <div className="product-list">
-      {products.map((product) => (
-        <div className="product-preview" key={product._id}>
-          <Link to={`/products/${product._id}`}>
+      {products.map((product, index) => (
+        <div className="product-preview" key={product.id || index}>
+          <Link to={`/products/${product.id}`}>
             <h2>{product.title}</h2>
           </Link>
 
@@ -15,11 +15,14 @@ const ProductListings = ({ products }) => {
           <p>Description: {product.description}</p>
           <p>Price: ${product.price}</p>
           <p>Stock Quantity: {product.stockQuantity}</p>
+
           {product.supplier && (
-            <p>Supplier: {product.supplier.name}</p>          )}
+            <p>Supplier: {product.supplier.name}</p>
+          )}
         </div>
       ))}
     </div>
   );
 };
+
 export default ProductListings;
