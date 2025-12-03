@@ -4,31 +4,37 @@ import { useEffect, useState } from "react";
 const ProductPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const deleteProduct = async (id) => {
+  const deleteProduct = async () => {
     try {
       const res = await fetch(`/api/products/${id}`, {
         method: "DELETE",
       });
-      if (!res.ok) {
-        throw new Error("Failed to delete product");
-      }
-    } catch (error) {
-      console.error("Error deleting product:", error);
+
+      if (!res.ok) throw new Error("Failed to delete product");
+
+      navigate("/");
+    } catch (err) {
+      console.error("Error deleting:", err);
     }
   };
 
   useEffect(() => {
+    if (!id) {
+      setError("Invalid product ID");
+      setLoading(false);
+      return;
+    }
+
     const fetchProduct = async () => {
       try {
-        console.log("id: ", id);
         const res = await fetch(`/api/products/${id}`);
-        if (!res.ok) {
-          throw new Error("Network response was not ok");
-        }
+        if (!res.ok) throw new Error("Network response was not ok");
+
         const data = await res.json();
         setProduct(data);
       } catch (err) {
@@ -41,15 +47,9 @@ const ProductPage = () => {
     fetchProduct();
   }, [id]);
 
-  const onDeleteClick = (productId) => {
-    const confirm = window.confirm(
-    `Are you sure you want to delete this listing? ${productId}`
-    );
-    if (!confirm) return;
-
-    deleteProduct(productId);
-    navigate("/");
-  };
+  if (!id || id === "undefined") {
+    return <p style={{ color: "red" }}>Invalid product ID</p>;
+  }
 
   return (
     <div className="product-preview">
@@ -67,7 +67,14 @@ const ProductPage = () => {
           <p>Supplier: {product.supplier?.name}</p>
           <p>Email: {product.supplier?.contactEmail}</p>
           <p>Phone: {product.supplier?.contactPhone}</p>
-          <button onClick={() => onDeleteClick(product._id)}>delete</button>
+
+          {/* DELETE BUTTON */}
+          <button onClick={deleteProduct}>Delete</button>
+
+          {/* FIXED EDIT BUTTON */}
+          <button onClick={() => navigate(`/products/edit/${product.id}`)}>
+            Edit
+          </button>
         </>
       )}
     </div>

@@ -1,7 +1,7 @@
 const Product = require("../models/productModel");
 const mongoose = require("mongoose");
 
-//GET / products;
+//GET /products
 const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find({}).sort({ createdAt: -1 });
@@ -45,7 +45,27 @@ const getProductById = async (req, res) => {
 
 // PUT /products/:productId
 const updateProduct = async (req, res) => {
-  res.send("updateProduct");
+  const { productId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+    return res.status(400).json({ message: "Invalid product ID" });
+  }
+
+  try {
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json(updatedProduct);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update product" });
+  }
 };
 
 // DELETE /products/:productId
