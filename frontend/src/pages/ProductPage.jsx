@@ -43,7 +43,7 @@ const ProductPage = () => {
 
   const onDeleteClick = (productId) => {
     const confirm = window.confirm(
-      "Are you sure you want to delete this listing?" + productId
+    `Are you sure you want to delete this listing? ${productId}`
     );
     if (!confirm) return;
 
@@ -52,20 +52,22 @@ const ProductPage = () => {
   };
 
   return (
-    <div className="job-preview">
+    <div className="product-preview">
       {loading ? (
         <p>Loading...</p>
       ) : error ? (
         <p>{error}</p>
       ) : (
         <>
-          <h2>{job.title}</h2>
-          <p>Type: {job.type}</p>
-          <p>Description: {job.description}</p>
-          <p>Company: {job.company.name}</p>
-          <p>Email: {job.company.contactEmail}</p>
-          <p>Phone: {job.company.contactPhone}</p>
-          <button onClick={() => onDeleteClick(job._id)}>delete</button>
+          <h2>{product.title}</h2>
+          <p>Category: {product.category}</p>
+          <p>Description: {product.description}</p>
+          <p>Price: ${product.price}</p>
+          <p>Stock Quantity: {product.stockQuantity}</p>
+          <p>Supplier: {product.supplier?.name}</p>
+          <p>Email: {product.supplier?.contactEmail}</p>
+          <p>Phone: {product.supplier?.contactPhone}</p>
+          <button onClick={() => onDeleteClick(product._id)}>delete</button>
         </>
       )}
     </div>

@@ -11,11 +11,12 @@ const ProductListings = ({ products }) => {
             <h2>{product.title}</h2>
           </Link>
 
-          <p>Type: {product.type}</p>
-
-          {product.company && (
-            <p>Company: {product.company.name}</p>
-          )}
+          <p>Category: {product.category}</p>
+          <p>Description: {product.description}</p>
+          <p>Price: ${product.price}</p>
+          <p>Stock Quantity: {product.stockQuantity}</p>
+          {product.supplier && (
+            <p>Supplier: {product.supplier.name}</p>          )}
         </div>
       ))}
     </div>
