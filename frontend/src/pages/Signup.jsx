@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const name = useField("text");  
+  const name = useField("text");
   const email = useField("email");
   const password = useField("password");
   const phoneNumber = useField("text");
@@ -16,40 +16,49 @@ const Signup = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    await signup({
+
+    const data = await signup({
+      name: name.value,
       email: email.value,
       password: password.value,
-      name: name.value,
       phone_number: phoneNumber.value,
       gender: gender.value,
       date_of_birth: dateOfBirth.value,
       membership_status: membershipStatus.value,
     });
-    if (!error) {
-      console.log("success");
-      navigate("/");
-    }
+
+    if (data) navigate("/");
   };
 
   return (
     <div className="create">
-      <h2>Sign Up</h2>
+      <h2>Signup</h2>
+
       <form onSubmit={handleFormSubmit}>
         <label>Name:</label>
         <input {...name} />
-        <label>Email address:</label>
+
+        <label>Email:</label>
         <input {...email} />
+
         <label>Password:</label>
-        <input {...password} />
+        <input {...password} type="password" />
+
         <label>Phone Number:</label>
         <input {...phoneNumber} />
+
         <label>Gender:</label>
         <input {...gender} />
+
         <label>Date of Birth:</label>
         <input {...dateOfBirth} />
+
         <label>Membership Status:</label>
         <input {...membershipStatus} />
-        <button>Sign up</button>
+
+        <button>Sign Up</button>
+
+        {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
     </div>
   );

@@ -7,12 +7,17 @@ const {
   deleteProduct,
 } = require("../controllers/productControllers");
 
+const auth = require("../middleware/authMiddleware");
+
 const router = express.Router();
 
+// PUBLIC
 router.get("/", getAllProducts);
-router.post("/", createProduct);
 router.get("/:productId", getProductById);
-router.put("/:productId", updateProduct);
-router.delete("/:productId", deleteProduct);
+
+// PROTECTED
+router.post("/", auth, createProduct);
+router.put("/:productId", auth, updateProduct);
+router.delete("/:productId", auth, deleteProduct);
 
 module.exports = router;
